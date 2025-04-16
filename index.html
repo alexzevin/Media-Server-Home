@@ -1,0 +1,650 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                var filteredData = jsonData.filter(row =>
+                    row.some(cell => cell !== '' && cell !== null && cell !== undefined)
+                );
+                var csv = XLSX.utils.aoa_to_sheet(filteredData);
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Favorites</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg-gradient-dark: linear-gradient(145deg, #1c1c1e, #2c2c2e);
+      --card-bg-dark: rgba(44, 44, 46, 0.75);
+      --text-color-dark: #f2f2f7;
+      --link-color-dark: #f2f2f7;
+      --hover-bg-dark: rgba(58, 58, 60, 0.8);
+      --card-shadow-dark: 0 8px 24px rgba(0, 0, 0, 0.4);
+      --border-color-dark: rgba(255, 255, 255, 0.1);
+      --highlight-bg-dark: #787878;
+      --highlight-text-dark: #fff;
+      --tag-bg-dark: #444;
+      --search-bg-dark: rgba(255, 255, 255, 0.08);
+      --section-color-dark: #ccc;
+      --datetime-color-dark: #aaa;
+      --ip-hover-color: #d1d1d1;
+      --bg-gradient-light: linear-gradient(145deg, #f5f5f7, #e5e5e7);
+      --card-bg-light: rgba(255, 255, 255, 0.9);
+      --text-color-light: #1c2526;
+      --link-color-light: #1c2526;
+      --hover-bg-light: rgba(235, 235, 237, 0.9);
+      --card-shadow-light: 0 8px 24px rgba(0, 0, 0, 0.1);
+      --border-color-light: rgba(0, 0, 0, 0.1);
+      --highlight-bg-light: #666666;
+      --highlight-text-light: #ffffff;
+      --tag-bg-light: #e5e5e7;
+      --search-bg-light: rgba(0, 0, 0, 0.05);
+      --section-color-light: #333;
+      --datetime-color-light: #555;
+      --bg-gradient: var(--bg-gradient-dark);
+      --card-bg: var(--card-bg-dark);
+      --text-color: var(--text-color-dark);
+      --link-color: var(--link-color-dark);
+      --hover-bg: var(--hover-bg-dark);
+      --card-shadow: var(--card-shadow-dark);
+      --border-color: var(--border-color-dark);
+      --highlight-bg: var(--highlight-bg-dark);
+      --highlight-text: var(--highlight-text-dark);
+      --tag-bg: var(--tag-bg-dark);
+      --search-bg: var(--search-bg-dark);
+      --section-color: var(--section-color-dark);
+      --datetime-color: var(--datetime-color-dark);
+      --plex-orange: #e5a00d;
+      --plex-black: #1f2326;
+      --nebulahub-color: #1ed5b9;
+      --quantumlink-color: #3a49ab;
+      --stellargate-color: #ef8354;
+      --astrocore-color: #7b4397;
+      --pulsemonitor-color: #D35400;
+      --fluxnode-color: #12b886;
+      --tailscale-color: #c80000;
+      --adguard-color: #66b933;
+    }
+
+    .light-mode {
+      --bg-gradient: var(--bg-gradient-light);
+      --card-bg: var(--card-bg-light);
+      --text-color: var(--text-color-light);
+      --link-color: var(--link-color-light);
+      --hover-bg: var(--hover-bg-light);
+      --card-shadow: var(--card-shadow-light);
+      --border-color: var(--border-color-light);
+      --highlight-bg: var(--highlight-bg-light);
+      --highlight-text: var(--highlight-text-light);
+      --tag-bg: var(--tag-bg-light);
+      --search-bg: var(--search-bg-light);
+      --section-color: var(--section-color-light);
+      --datetime-color: var(--datetime-color-light);
+      --ip-hover-color: #555;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      height: 100%;
+      background: var(--bg-gradient);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-color);
+      min-height: 100vh;
+      padding: 40px 20px;
+      transition: all 0.3s ease;
+    }
+
+    header {
+      max-width: 1000px;
+      margin: 0 auto 30px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 20px;
+    }
+
+    .top-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      font-size: 2.4em;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    .right-header {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .datetime {
+      font-size: 1em;
+      color: var(--datetime-color);
+    }
+
+    #public-ip a {
+      font-size: 0.9em;
+      color: #777;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    #public-ip a:hover {
+      color: var(--ip-hover-color);
+    }
+
+    .greeting {
+      margin-top: 10px;
+      font-size: 1.1em;
+      color: #999;
+    }
+
+    .search-bar {
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: none;
+      font-size: 1em;
+      background-color: var(--search-bg);
+      color: var(--text-color);
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .section {
+      max-width: 1000px;
+      margin: 40px auto 0;
+    }
+
+    .section h2 {
+      font-size: 1.3em;
+      font-weight: 500;
+      margin-bottom: 15px;
+      padding-left: 5px;
+      color: var(--section-color);
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px;
+    }
+
+    .section:nth-child(2) .container {
+      grid-template-columns: repeat(3, minmax(180px, 1fr));
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      padding: 24px 18px;
+      padding-right: 40px;
+      text-align: center;
+      box-shadow: var(--card-shadow);
+      transition: all 0.25s ease-in-out;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      cursor: pointer;
+      color: var(--link-color);
+      text-decoration: none;
+      font-size: 1.1em;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      word-break: break-word;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      background: var(--hover-bg);
+      transform: translateY(-3px);
+    }
+
+    .card .status {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: gray;
+      opacity: 0.8;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      z-index: 2;
+    }
+
+    .status.online {
+      background-color: #4cd964;
+      box-shadow: 0 0 6px #4cd96488;
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+
+    .status.offline {
+      background-color: #ff453a;
+      box-shadow: 0 0 6px #ff453a88;
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    .card .port {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 0.7em;
+      background: var(--tag-bg);
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #ccc;
+      opacity: 0.7;
+      z-index: 2;
+    }
+
+    .light-mode .card .port {
+      color: #666;
+    }
+
+    .card.highlighted {
+      background: var(--highlight-bg) !important;
+      color: var(--highlight-text) !important;
+      box-shadow: 0 0 12px rgba(120, 120, 120, 0.5);
+    }
+
+    .branded-card {
+      position: relative;
+    }
+
+    .branded-card:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1;
+      border-radius: 18px;
+    }
+
+    .branded-card:after {
+      content: "";
+      position: absolute;
+      left: -10px;
+      top: 55%;
+      width: 120%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.7;
+      transform: translateY(-50%);
+    }
+
+    .branded-card span {
+      position: relative;
+      z-index: 2;
+    }
+
+    .plex-card:before {
+      background: linear-gradient(125deg, rgba(229, 160, 13, 0.15), rgba(31, 35, 38, 0.4));
+    }
+    .plex-card:after {
+      background: radial-gradient(ellipse at center, rgba(229, 160, 13, 0.2) 0%, rgba(229, 160, 13, 0) 70%);
+    }
+
+    .nebulahub-card:before {
+      background: linear-gradient(125deg, rgba(30, 213, 185, 0.15), rgba(30, 40, 40, 0.4));
+    }
+    .nebulahub-card:after {
+      background: radial-gradient(ellipse at center, rgba(30, 213, 185, 0.2) 0%, rgba(30, 213, 185, 0) 70%);
+    }
+
+    .quantumlink-card:before {
+      background: linear-gradient(125deg, rgba(58, 73, 171, 0.15), rgba(30, 35, 60, 0.4));
+    }
+    .quantumlink-card:after {
+      background: radial-gradient(ellipse at center, rgba(58, 73, 171, 0.2) 0%, rgba(58, 73, 171, 0) 70%);
+    }
+
+    .stellargate-card:before {
+      background: linear-gradient(125deg, rgba(239, 131, 84, 0.15), rgba(50, 35, 30, 0.4));
+    }
+    .stellargate-card:after {
+      background: radial-gradient(ellipse at center, rgba(239, 131, 84, 0.2) 0%, rgba(239, 131, 84, 0) 70%);
+    }
+
+    .astrocore-card:before {
+      background: linear-gradient(125deg, rgba(123, 67, 151, 0.15), rgba(40, 30, 50, 0.4));
+    }
+    .astrocore-card:after {
+      background: radial-gradient(ellipse at center, rgba(123, 67, 151, 0.2) 0%, rgba(123, 67, 151, 0) 70%);
+    }
+
+    .pulsemonitor-card:before {
+      background: linear-gradient(125deg, rgba(211, 84, 0, 0.15), rgba(50, 25, 25, 0.4));
+    }
+    .pulsemonitor-card:after {
+      background: radial-gradient(ellipse at center, rgba(211, 84, 0, 0.2) 0%, rgba(211, 84, 0, 0) 70%);
+    }
+
+    .fluxnode-card:before {
+      background: linear-gradient(125deg, rgba(18, 184, 134, 0.15), rgba(30, 45, 35, 0.4));
+    }
+    .fluxnode-card:after {
+      background: radial-gradient(ellipse at center, rgba(18, 184, 134, 0.2) 0%, rgba(18, 184, 134, 0) 70%);
+    }
+
+    .tailscale-card:before {
+      background: linear-gradient(125deg, rgba(200, 0, 0, 0.15), rgba(50, 25, 25, 0.4));
+    }
+    .tailscale-card:after {
+      background: radial-gradient(ellipse at center, rgba(200, 0, 0, 0.2) 0%, rgba(200, 0, 0, 0) 70%);
+    }
+
+    .adguard-card:before {
+      background: linear-gradient(125deg, rgba(102, 185, 51, 0.15), rgba(30, 50, 25, 0.4));
+    }
+    .adguard-card:after {
+      background: radial-gradient(ellipse at center, rgba(102, 185, 51, 0.2) 0%, rgba(102, 185, 51, 0) 70%);
+    }
+
+    .light-mode .branded-card:before,
+    .light-mode .branded-card:after {
+      background: none;
+    }
+
+    footer {
+      margin: 60px auto 20px;
+      max-width: 1000px;
+      text-align: center;
+      font-size: 0.9em;
+      color: #666;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .theme-toggle {
+      font-size: 1em;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 5px;
+      color: #666;
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+    }
+
+    .theme-toggle:hover {
+      opacity: 1;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.6; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @media (max-width: 500px) {
+      .top-line {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .right-header {
+        align-items: flex-start;
+        margin-top: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="top-line">
+      <h1>Favorites</h1>
+      <div class="right-header">
+        <div class="datetime" id="datetime">Loading...</div>
+        <div id="public-ip"><a href="https://mullvad.net/en/check">Loading public IP...</a></div>
+      </div>
+    </div>
+    <div class="greeting" id="greeting">Hello, Alex</div>
+    <div class="search-bar">
+      <input type="text" id="search" placeholder="Search favorites... (press /)">
+    </div>
+  </header>
+  <div id="bookmark-sections"></div>
+  <footer>
+    <span>Alex's Media Server</span>
+    <button class="theme-toggle" id="theme-toggle">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </button>
+  </footer>
+  <script>
+    const bookmarks = {
+      Media: [
+        { name: "Plex", url: "http://127.0.0.1:32400", special: "plex" }
+      ],
+      Tools: [
+        { name: "NebulaHub", url: "http://localhost:4729/", special: "nebulahub" },
+        { name: "QuantumLink", url: "http://localhost:6153/", special: "quantumlink" },
+        { name: "StellarGate", url: "http://localhost:9271/", special: "stellargate" },
+        { name: "AstroCore", url: "http://localhost:3842/", special: "astrocore" },
+        { name: "PulseMonitor", url: "http://localhost:7509/", special: "pulsemonitor" },
+        { name: "FluxNode", url: "http://127.0.0.1:2964/", special: "fluxnode" }
+      ],
+      Network: [
+        { name: "Tailscale", url: "https://login.tailscale.com/admin/machines", special: "tailscale" },
+        { name: "AdGuard Home", url: "http://localhost:80", special: "adguard" }
+      ]
+    };
+
+    const sectionContainer = document.getElementById("bookmark-sections");
+    const themeToggle = document.getElementById("theme-toggle");
+    const body = document.body;
+
+    const moonIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+    const sunIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+
+    function setTheme(isLight) {
+      body.classList.toggle("light-mode", isLight);
+      themeToggle.innerHTML = isLight ? sunIcon : moonIcon;
+      localStorage.setItem("theme", isLight ? "light" : "dark");
+    }
+
+    function renderBookmarks() {
+      for (const [section, links] of Object.entries(bookmarks)) {
+        const sectionDiv = document.createElement("div");
+        sectionDiv.className = "section";
+        const heading = document.createElement("h2");
+        heading.textContent = section;
+        const container = document.createElement("div");
+        container.className = "container";
+
+        links.forEach(link => {
+          const card = document.createElement("a");
+          card.className = `card ${link.special ? `${link.special}-card branded-card` : ""}`;
+          card.href = link.url;
+          const nameSpan = document.createElement("span");
+          nameSpan.textContent = link.name;
+          card.appendChild(nameSpan);
+          const status = document.createElement("div");
+          status.className = "status";
+          card.appendChild(status);
+          const portMatch = link.url.match(/:(\d+)/);
+          if (portMatch) {
+            const port = document.createElement("div");
+            port.className = "port";
+            port.textContent = `:${portMatch[1]}`;
+            card.appendChild(port);
+          }
+          container.appendChild(card);
+          setTimeout(() => {
+            fetch(link.url, { mode: "no-cors" })
+              .then(() => status.classList.add("online"))
+              .catch(() => status.classList.add("offline"));
+          }, 100);
+        });
+
+        sectionDiv.appendChild(heading);
+        sectionDiv.appendChild(container);
+        sectionContainer.appendChild(sectionDiv);
+      }
+    }
+
+    function updateDateTime() {
+      const now = new Date();
+      const day = now.toLocaleDateString("en-US", { weekday: "short" });
+      const month = now.toLocaleDateString("en-US", { month: "short" });
+      const date = now.getDate();
+      let hours = now.getHours();
+      const minutes = now.getMinutes().toString().padStart(2, "0");
+      const ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12 || 12;
+      document.getElementById("datetime").textContent = `${day} ${month} ${date} ${hours}:${minutes} ${ampm}`;
+    }
+
+    function updateGreeting() {
+      const hour = new Date().getHours();
+      const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+      document.getElementById("greeting").textContent = `${greeting}, Alex`;
+    }
+
+    function fetchPublicIP() {
+      const ipElement = document.getElementById("public-ip");
+      ipElement.innerHTML = `<a href="https://mullvad.net/en/check">Public IP: Loading...</a>`;
+      fetch("https://1.1.1.1/cdn-cgi/trace")
+        .then(response => response.text())
+        .then(data => {
+          const ipLine = data.split("\n").find(line => line.startsWith("ip="));
+          const ip = ipLine ? ipLine.split("=")[1] : "Unavailable";
+          ipElement.innerHTML = `<a href="https://mullvad.net/en/check">Public IP: ${ip}</a>`;
+        })
+        .catch(() => {
+          ipElement.innerHTML = `<a href="https://mullvad.net/en/check">Public IP: Unavailable</a>`;
+        });
+    }
+
+    function refreshIPOnFocus() {
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") fetchPublicIP();
+      });
+    }
+
+    function initSearch() {
+      const input = document.getElementById("search");
+      let matches = [];
+      let index = -1;
+
+      function resetHighlights() {
+        document.querySelectorAll(".card").forEach(card => card.classList.remove("highlighted"));
+      }
+
+      function updateMatches() {
+        const query = input.value.toLowerCase();
+        resetHighlights();
+        matches = [];
+        document.querySelectorAll(".section").forEach(section => {
+          section.style.display = "block";
+          section.querySelectorAll(".card").forEach(card => card.style.display = "flex");
+        });
+        document.querySelectorAll(".card").forEach(card => {
+          const isMatch = card.textContent.toLowerCase().includes(query);
+          card.style.display = isMatch || !query ? "flex" : "none";
+          if (isMatch) matches.push(card);
+        });
+        document.querySelectorAll(".section").forEach(section => {
+          section.style.display = Array.from(section.querySelectorAll(".card")).some(card => card.style.display !== "none") || !query ? "block" : "none";
+        });
+        index = query.length === 0 ? -1 : matches.length ? 0 : index;
+        if (matches.length && index >= 0) matches[index].classList.add("highlighted");
+      }
+
+      function navigateHorizontally(direction) {
+        if (!matches.length || index === -1) return;
+        const currentCard = matches[index];
+        const allVisibleCards = Array.from(document.querySelectorAll(".card")).filter(card => card.style.display !== "none");
+        const currentVisibleIndex = allVisibleCards.indexOf(currentCard);
+        let nextIndex = direction === "left" ? currentVisibleIndex - 1 : currentVisibleIndex + 1;
+        if (nextIndex < 0) nextIndex = allVisibleCards.length - 1;
+        if (nextIndex >= allVisibleCards.length) nextIndex = 0;
+        resetHighlights();
+        const nextCard = allVisibleCards[nextIndex];
+        nextCard.classList.add("highlighted");
+        nextCard.scrollIntoView({ block: "center", behavior: "smooth" });
+        index = matches.indexOf(nextCard);
+      }
+
+      input.addEventListener("input", updateMatches);
+      document.addEventListener("keydown", e => {
+        if (e.key === "/" && document.activeElement !== input) {
+          e.preventDefault();
+          input.focus();
+        }
+        if (matches.length && document.activeElement === input) {
+          if (["ArrowDown", "ArrowUp"].includes(e.key)) {
+            e.preventDefault();
+            if (index >= 0) matches[index].classList.remove("highlighted");
+            index = e.key === "ArrowDown" ? (index + 1) % matches.length : (index - 1 + matches.length) % matches.length;
+            matches[index].classList.add("highlighted");
+            matches[index].scrollIntoView({ block: "center", behavior: "smooth" });
+          }
+          if (["ArrowLeft", "ArrowRight"].includes(e.key)) {
+            e.preventDefault();
+            navigateHorizontally(e.key === "ArrowLeft" ? "left" : "right");
+          }
+          if (e.key === "Enter" && index >= 0) {
+            e.preventDefault();
+            matches[index].click();
+          }
+        }
+      });
+    }
+
+    (function initialize() {
+      setTheme(localStorage.getItem("theme") === "light");
+      themeToggle.addEventListener("click", () => setTheme(!body.classList.contains("light-mode")));
+      renderBookmarks();
+      updateDateTime();
+      updateGreeting();
+      fetchPublicIP();
+      initSearch();
+      refreshIPOnFocus();
+      setInterval(updateDateTime, 1000);
+      setInterval(fetchPublicIP, 5 * 60 * 1000);
+    })();
+  </script>
+</body>
+</html>
