@@ -8,7 +8,7 @@ A simple homepage for managing media server shortcuts featuring:
 
 ✅ Live clock and public IP address (Cloudflare 1.1.1.1 fetch)
 
-✅ Day / night mode (Preference saving)
+✅ Day / night mode (Stores preference)
 
 ✅ Standalone HTML file
 
