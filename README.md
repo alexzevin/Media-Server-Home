@@ -6,11 +6,11 @@ A simple homepage for managing media server shortcuts featuring:
 
 ✅ Local ports and online status
 
-✅ Live clock and public IP address
+✅ Live clock and public IP address (Cloudflare 1.1.1.1 fetch)
 
-✅ Day / night mode
+✅ Day / night mode (Preference saving)
 
-✅ Standalone html file
+✅ Standalone HTML file
 
 Tested using Safari 18.4, Chrome 135.0 and Firefox 134.0
 
